@@ -3,7 +3,6 @@
 #include <string>
 #include <assert.h>
 using namespace std;
- // Это наша тестовая функция(функтор)
 
 template <class T> class Func
 {
@@ -14,7 +13,6 @@ public:
 	}
 };
 
- // Класс целых чисел
 
 class Number
 {
@@ -76,8 +74,6 @@ public:
 	}
 };
 
- // Далее перечислены основные операторы, которые нужны для правильной	 работы функции precycle_length
-
 Number operator + (const Number& x, const Number& y) {
 	const Number Sum((x.GetNum() + y.GetNum()) % (x.GetMod()), x.GetMod());
 	return Sum;
@@ -108,18 +104,13 @@ Number operator * (const int x, const Number& y) {
 	return Mult;
 }
 
- // Реализация функции поиска длины предцикла
- // Требование к шабTлонному типу : типом Т может быть лишь класс, у которого есть поле с названием mod и реализован метод GetMod()
 template <typename T> int precycle_length(T x, Func<T> f)
 {
-	// сначала найдем произвольный элемент цикла, назовем его с.
 
 	T c(x);
 	for(int i = 1; i <= x.GetMod() + 1; i++) {
 		c = f(c);
 	}
-
-	// Теперь можно найти длину цикла, пользуясь элементом цикла с.
 
 	int cycle_length = 1;
 	T current(f(c));
@@ -127,8 +118,6 @@ template <typename T> int precycle_length(T x, Func<T> f)
 		current = f(current);
 		cycle_length++;
 	}
-
-	// А теперь, пользуясь длиной цикла, мы знаем, как найти первый элемент цикла
 
 	T first_cycle_element(x);
 	T cycle_distance_element(x);
@@ -139,9 +128,6 @@ template <typename T> int precycle_length(T x, Func<T> f)
 		first_cycle_element = f(first_cycle_element);
 		cycle_distance_element = f(cycle_distance_element);
 	}
-
-	// Итак, first_cycle_element - первый элемент цикла, теперь можно определить длину предцикла 
-	// как число шагов от начального элемента до первого элемента цикла
 
 	int precycle_length = 0;
 	T cur(x);
