@@ -28,7 +28,7 @@ private:
 public:
 	void normalize() {
 		vector<double>:: iterator it = _polynom.begin();
-		while(it != _polynom.end() && *it == 0) {
+		while(_polynom.size() != 0 && *it == 0) {
 			_polynom.erase(it);
 		}
 	}
@@ -96,7 +96,7 @@ public:
 				++i;
 			}
 			return is_notequal;
-		}
+		} 
 	}
 	void print() {
 		for(int i = 0; i < _polynom.size(); i++) {
