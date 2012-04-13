@@ -3,16 +3,18 @@
 #include <string>
 #include <assert.h>
 using namespace std;
+ // Это наша тестовая функция(функтор)
 
-template <class T> class Func
+template <class T> class Function
 {
 public:
-	Func() {}
-	T operator () ( T x) {
+	Function() {}
+	T operator () (const T x) {
 		return (37 * x + x * x + 7);
 	}
 };
 
+ // Класс целых чисел
 
 class Number
 {
@@ -28,10 +30,6 @@ public:
 		mod = m;
 		num = n % m;
 
-	}
-	Number(const Number& Numb) {
-		mod = Numb.GetMod();
-		num = Numb.GetNum() % mod;
 	}
     int GetNum() const {
 		return num % mod;
@@ -49,68 +47,51 @@ public:
 			return *this;
 	}
     bool operator == (const Number& x) {
-		    if(mod == x.GetMod() && num == x.GetNum() % mod)
-				return true;
-			else 
-				return false;
-	}
-    bool operator == (const int& x) {
-		    if(num == x % mod) 
-				return true;
-			else 
-				return false;
+		    return (mod == x.GetMod() && num == x.GetNum());
 	}
 	bool operator != (const Number& x) {
-		    if(mod != x.GetMod() || num != x.GetNum() % mod)
-				return true;
-			else 
-				return false;
-	}
-    bool operator != (const int& x) {
-		    if(num != x % mod) 
-				return true;
-			else 
-				return false;
+            return (mod != x.GetMod() || num != x.GetNum());
 	}
 };
 
+ // Далее перечислены основные операторы, которые нужны для правильной	 работы функции precycle_length
+
 Number operator + (const Number& x, const Number& y) {
-	const Number Sum((x.GetNum() + y.GetNum()) % (x.GetMod()), x.GetMod());
-	return Sum;
+	return  Number(x.GetNum() + y.GetNum(), x.GetMod());
 }
 
 Number operator + (const Number& x, const int y) {
-    const Number Sum((x.GetNum() + y) % (x.GetMod()), x.GetMod());
-	return Sum;
+	return Number(x.GetNum() + y, x.GetMod());
 }
 
 Number operator + (const int x, const Number& y) {
-    const Number Sum((x + y.GetNum()) % (y.GetMod()), y.GetMod());
-	return Sum;
+	return Number(x + y.GetNum(), y.GetMod());
 }
 
 Number operator * (const Number& x, const Number& y) {
-	const Number Mult((x.GetNum() * y.GetNum()) % (x.GetMod()), x.GetMod());
-	return Mult;
+	return  Number(x.GetNum() * y.GetNum(), x.GetMod());
 }
 
 Number operator * (const Number& x, const int y) {
-    const Number Mult((x.GetNum() * y) % (x.GetMod()), x.GetMod());
-	return Mult;
+	return  Number(x.GetNum() * y, x.GetMod());
 }
 
 Number operator * (const int x, const Number& y) {
-    const Number Mult((x * y.GetNum()) % (y.GetMod()), y.GetMod());
-	return Mult;
+	return  Number(x * y.GetNum(), y.GetMod());
 }
 
-template <typename T> int precycle_length(T x, Func<T> f)
+ // Реализация функции поиска длины предцикла
+ // Требование к шабTлонному типу : типом Т может быть лишь класс, у которого есть поле с названием mod и реализован метод GetMod()
+template <typename T, template <typename> class Transformation> int precycle_length(const T& x, Transformation<T> f)
 {
+	// сначала найдем произвольный элемент цикла, назовем его с.
 
 	T c(x);
 	for(int i = 1; i <= x.GetMod() + 1; i++) {
 		c = f(c);
 	}
+
+	// Теперь можно найти длину цикла, пользуясь элементом цикла с.
 
 	int cycle_length = 1;
 	T current(f(c));
@@ -118,6 +99,8 @@ template <typename T> int precycle_length(T x, Func<T> f)
 		current = f(current);
 		cycle_length++;
 	}
+
+	// А теперь, пользуясь длиной цикла, мы знаем, как найти первый элемент цикла
 
 	T first_cycle_element(x);
 	T cycle_distance_element(x);
@@ -128,6 +111,9 @@ template <typename T> int precycle_length(T x, Func<T> f)
 		first_cycle_element = f(first_cycle_element);
 		cycle_distance_element = f(cycle_distance_element);
 	}
+
+	// Итак, first_cycle_element - первый элемент цикла, теперь можно определить длину предцикла
+	// как число шагов от начального элемента до первого элемента цикла
 
 	int precycle_length = 0;
 	T cur(x);
@@ -142,8 +128,8 @@ template <typename T> int precycle_length(T x, Func<T> f)
 	if (!(cond)) { cerr << message << endl; assert(false); }
 
 int main()
-{ 
-	Func<Number> f;
+{
+	Function<Number> f;
 	Number argument(7, 10);
 	int etalon_1 = 0;
 	int result_1 = precycle_length<Number>(argument,  f);
