@@ -1,4 +1,5 @@
 
+
 #include <cstdlib>
 #include <iostream>
 #include <vector>
@@ -34,56 +35,68 @@ private:
     class DFS_Iterator {
     private:
         int current;
+		Tree* tree;
     public:
-        int get_current() {
+	DFS_Iterator(Tree* _tree, int index) {
+			current = index;
+			tree = _tree;
+	}
+        int get_current() const {
             return current;
         }
-        DFS_Iterator(int index) {
-            current = index;
-        }
+		Tree* const getTree() const {
+			return tree;
+		}
         DFS_Iterator& operator = (const DFS_Iterator& iterator) {
             current = iterator.get_current();
+			tree = iterator.getTree();
             return *this;
         }
         bool operator == (const DFS_Iterator& iterator) {
-            return (current == iterator.get_current());
+            return (current == iterator.get_current() && tree == iterator.getTree());
         }
         bool operator != (const DFS_Iterator& iterator) {
-            return (current != iterator.get_current());
+            return (current != iterator.get_current() || !(tree == iterator.getTree()));
         }
         DFS_Iterator& operator ++ () {
-            if(!(vertexes[current].children.empty())) {    
-                return ((*this) = DFS_Iterator(*(vertexes[current].children.begin())));
+            if(!((tree->getVertexes())[current].children.empty())) {    
+                return ((*this) = DFS_Iterator(this->tree, *(((this->tree)->getVertexes())[current].children.begin())));
             }
             else {
                 int _current = current;
-                int parent_of_current = vertexes[_current].parent;
+                int parent_of_current = (tree->getVertexes())[_current].parent;
                 set<int> parents_children;
                 while(parent_of_current != -1) {
-                    parents_children = vertexes[parent_of_current].children;
+                    parents_children = (tree->getVertexes())[parent_of_current].children;
                     set<int> :: iterator elder_brother = parents_children.find(_current);
                     ++elder_brother;
                     if(elder_brother != parents_children.end()) {
-                        return ((*this) = DFS_Iterator(*elder_brother));
+                        return ((*this) = DFS_Iterator((this->tree),*elder_brother));
                     }
                     else {
                         _current = parent_of_current;
-                        parent_of_current = vertexes[_current].parent;
+                        parent_of_current = (tree->getVertexes())[_current].parent;
                     }
-                    return ((*this) = DFS_Iterator(-10));
+                    return ((*this) = DFS_Iterator(this->tree, -10));
                 }
             }
         }
-        Vertex operator * () {
-            return vertexes[current];
+        const Vertex& operator * () const {
+            return (tree->getVertexes())[current];
+        }
+        Vertex& operator * () {
+            return (tree->getVertexes())[current];
         }
      };
 public: 
     typedef DFS_Iterator iterator;
-    int getNumberOfVertexes() {
+    int getNumberOfVertexes() const {
         return number_of_vertexes;
     }
-    const vector<Vertex>& getVertexes() {
+    const vector<Vertex>& getVertexes() const {
+        return vertexes;
+    }
+    vector<Vertex>& getVertexes() {
         return vertexes;
     }
     Tree() {
@@ -96,16 +109,16 @@ public:
     }
     Tree(const Tree& _tree) {
         number_of_vertexes = _tree.getNumberOfVertexes();
-        vector<Vertex> :: iterator it;
+        vector<Vertex> :: const_iterator it;
         for(it = _tree.getVertexes().begin(); it != _tree.getVertexes().end(); it++) {
-            vertexes.insert(*it);
+            vertexes.push_back(*it);
         }
     }
     iterator begin() {
-        return iterator(0);
+        return iterator(this, 0);
     }
     iterator end() {
-        return iterator(-10);
+        return iterator(this, -10);
     }
     void ErasePaint() {
         vector<Vertex> :: iterator it;
@@ -115,10 +128,10 @@ public:
     } 
     Tree& operator = (const Tree& _tree) {
         number_of_vertexes = _tree.getNumberOfVertexes();
-        vector<Vertex> :: iterator it;
+        vector<Vertex> :: const_iterator it;
         vertexes.clear();
         for(it = _tree.getVertexes().begin(); it != _tree.getVertexes().end(); it++) {
-            vertexes.insert(*it);
+            vertexes.push_back(*it);
         }
         return *this;
     }
