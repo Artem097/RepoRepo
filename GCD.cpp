@@ -24,7 +24,110 @@ T gcd_search(const T& arg_1, const T& arg_2) {
     else return a;
 }
 
-class Polynom {
+class RationalNumber 
+{
+private:
+    int numerator;
+    int denominator;
+public:
+    int get_denominator() const {
+        return denominator;
+    }
+    int get_numerator() const {
+        return numerator;
+    }
+    void normalize() {
+        int _numerator = abs(numerator);
+        int _denominator = abs(denominator);
+        int gcd = gcd_search<int>(_numerator, _denominator);
+        _numerator = _numerator/gcd;
+        _denominator = _denominator/gcd;
+        if(numerator == 0) {
+            denominator = 1;
+        }
+        else if((numerator < 0 && denominator < 0) || (numerator > 0 && denominator > 0)) {
+            numerator = _numerator;
+            denominator = _denominator;
+        }
+        else {
+            numerator = -_numerator;
+            denominator = _denominator;  
+        }
+    }
+    RationalNumber() {
+        denominator = 1;
+        numerator = 0;
+    }
+    RationalNumber(int number) {
+        denominator = 1;
+        numerator = number;
+    }
+    RationalNumber(int _numerator, int _denominator) {
+        denominator = _denominator;
+        numerator = _numerator;
+        normalize();
+    }
+    RationalNumber& operator = (const RationalNumber& fraction) {
+        denominator = fraction.get_denominator();
+        numerator = fraction.get_numerator();
+    }
+    bool operator == (const RationalNumber& fraction) const {
+        return (denominator == fraction.get_denominator() && numerator == fraction.get_numerator());
+    }
+    bool operator != (const RationalNumber& fraction) const {
+        return (denominator != fraction.get_denominator() || numerator != fraction.get_numerator());
+    }
+};
+
+RationalNumber operator + (const RationalNumber& first, const RationalNumber& second) {
+    int _numerator = first.get_numerator() * second.get_denominator() + first.get_denominator() * second.get_numerator();
+    int _denominator = first.get_denominator() * second.get_denominator();
+    return RationalNumber(_numerator, _denominator);
+}
+
+RationalNumber operator - (const RationalNumber& first, const RationalNumber& second) {
+    int _numerator = first.get_numerator() * second.get_denominator() - first.get_denominator() * second.get_numerator();
+    int _denominator = first.get_denominator() * second.get_denominator();
+    return RationalNumber(_numerator, _denominator);
+}
+
+RationalNumber operator - (const RationalNumber& fraction) {
+    return RationalNumber(-fraction.get_numerator(), fraction.get_denominator());
+}
+
+RationalNumber operator * (const RationalNumber& first, const RationalNumber& second) {
+    int _numerator = first.get_numerator() * second.get_numerator();
+    int _denominator = first.get_denominator() * second.get_denominator();
+    return RationalNumber(_numerator, _denominator);
+}
+
+RationalNumber operator * (const RationalNumber& fraction, int number) {
+    return RationalNumber(number * fraction.get_numerator(), fraction.get_denominator());
+}
+
+RationalNumber operator * (int number, const RationalNumber& fraction) {
+    return RationalNumber(number * fraction.get_numerator(), fraction.get_denominator());
+}
+
+RationalNumber operator / (const RationalNumber& first, const RationalNumber& second) {
+    assert(second != RationalNumber(0));
+    int _numerator = first.get_numerator() * second.get_denominator();
+    int _denominator = first.get_denominator() * second.get_numerator();
+    return RationalNumber(_numerator, _denominator);
+}
+
+RationalNumber operator / (const RationalNumber& fraction, int number) {
+    assert(number != 0);
+    return RationalNumber(fraction.get_numerator(), number * fraction.get_denominator());
+}
+
+RationalNumber operator / (int number, const RationalNumber& fraction) {
+    assert(fraction != RationalNumber(0));
+    return RationalNumber(number * fraction.get_denominator(), fraction.get_numerator());
+}
+
+class Polynom 
+{
 private:
     vector<double> _polynom;
 public:
@@ -352,4 +455,4 @@ int main() {
     testForInt();
     testForPolynom();
     return 0;
-} 
+}
