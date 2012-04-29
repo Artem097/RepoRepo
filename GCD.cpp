@@ -24,7 +24,7 @@ T gcd_search(const T& arg_1, const T& arg_2) {
     else return a;
 }
 
-class RationalNumber 
+class RationalNumber
 {
 private:
     int numerator;
@@ -51,7 +51,7 @@ public:
         }
         else {
             numerator = -_numerator;
-            denominator = _denominator;  
+            denominator = _denominator;
         }
     }
     RationalNumber() {
@@ -67,6 +67,7 @@ public:
         numerator = _numerator;
         normalize();
     }
+
     RationalNumber& operator = (const RationalNumber& fraction) {
         denominator = fraction.get_denominator();
         numerator = fraction.get_numerator();
@@ -76,6 +77,12 @@ public:
     }
     bool operator != (const RationalNumber& fraction) const {
         return (denominator != fraction.get_denominator() || numerator != fraction.get_numerator());
+    }
+    void print() {
+        if(denominator == 1) {
+            cout << numerator << ' ';
+        }
+        else cout << numerator << '/' << denominator << ' ';
     }
 };
 
@@ -126,24 +133,24 @@ RationalNumber operator / (int number, const RationalNumber& fraction) {
     return RationalNumber(number * fraction.get_denominator(), fraction.get_numerator());
 }
 
-class Polynom 
+class Polynom
 {
 private:
-    vector<double> _polynom;
+    vector<RationalNumber> _polynom;
 public:
 
     void normalize() {
-        vector<double>::iterator it = _polynom.begin();
-        while (_polynom.size() != 0 && *it == 0) {
+        vector<RationalNumber>::iterator it = _polynom.begin();
+        while (_polynom.size() != 0 && *it == RationalNumber(0)) {
             _polynom.erase(it);
         }
     }
 
-    vector<double>& get_polynom() {
+    vector<RationalNumber>& get_polynom() {
         return _polynom;
     }
 
-    const vector<double>& get_polynom() const {
+    const vector<RationalNumber>& get_polynom() const {
         return _polynom;
     }
 
@@ -154,12 +161,17 @@ public:
     Polynom() {
     }
 
-    Polynom(const double constant) {
+    Polynom(RationalNumber constant) {
         _polynom.push_back(constant);
         normalize();
     }
 
-    Polynom(const vector<double>& poly) {
+    Polynom(int constant) {
+        _polynom.push_back(RationalNumber(constant));
+        normalize();
+    }
+
+    Polynom(const vector<RationalNumber>& poly) {
         for (int i = 0; i < poly.size(); i++) {
             _polynom.push_back(poly[i]);
         }
@@ -172,19 +184,16 @@ public:
         }
     }
 
-    double& operator [] (int i) {
+    RationalNumber& operator [] (int i) {
         return _polynom[i];
     }
 
-    double operator [] (int i) const {
+    RationalNumber operator [] (int i) const {
         return _polynom[i];
     }
 
-    bool operator<(const Polynom& Poly) const {
-        if (get_degree() < Poly.get_degree())
-            return true;
-        else
-            return false;
+    bool operator <(const Polynom& Poly) const {
+        return (get_degree() < Poly.get_degree());
     }
 
     Polynom& operator =(const Polynom& Poly) {
@@ -196,10 +205,7 @@ public:
     }
 
     bool operator ==(const Polynom& Poly) const {
-        if (_polynom == Poly.get_polynom())
-            return true;
-        else
-            return false;
+        return (_polynom == Poly.get_polynom());
     }
 
     bool operator !=(const Polynom& Poly) const {
@@ -221,7 +227,7 @@ public:
 
     void print() {
         for (int i = 0; i < _polynom.size(); i++) {
-            cout << _polynom[i] << ' ';
+            _polynom[i].print();
         }
         cout << endl;
     }
@@ -280,7 +286,7 @@ Polynom operator *(const Polynom& Poly_1, const Polynom& Poly_2) {
     if (Product_degree < -1) {
         Product_degree = -1;
     }
-    vector<double> _product(Product_degree + 1, 0);
+    vector<RationalNumber> _product(Product_degree + 1, RationalNumber(0));
     for (int i = 0; i <= Poly_1.get_degree(); i++) {
         for (int j = 0; j <= Poly_2.get_degree(); j++) {
             _product[i + j] = _product[i + j] + Poly_1[i] * Poly_2[j];
@@ -290,14 +296,14 @@ Polynom operator *(const Polynom& Poly_1, const Polynom& Poly_2) {
     return Product;
 }
 
-Polynom operator *(const Polynom& Poly, double numb) {
+Polynom operator *(const Polynom& Poly, RationalNumber numb) {
     Polynom Product;
     Polynom Numb(numb);
     Product = Poly * Numb;
     return Product;
 }
 
-Polynom operator *(double numb, const Polynom& Poly) {
+Polynom operator *(RationalNumber numb, const Polynom& Poly) {
     Polynom Product;
     Polynom Numb(numb);
     Product = Poly * Numb;
@@ -305,13 +311,13 @@ Polynom operator *(double numb, const Polynom& Poly) {
 }
 
 Polynom operator %(const Polynom& Poly_1, const Polynom& Poly_2) {
-    assert(Poly_2 != Polynom(0));
+    assert(Poly_2 != Polynom(RationalNumber(0)));
     Polynom Modulo(Poly_1);
     while (!(Modulo < Poly_2)) {
-        vector<double> _divider;
+        vector<RationalNumber> _divider;
         _divider.push_back(Modulo[0] / Poly_2[0]);
         for (int i = 0; i < Modulo.get_degree() - Poly_2.get_degree(); i++) {
-            _divider.push_back(0);
+            _divider.push_back(RationalNumber(0));
         }
         Polynom Divider(_divider);
         Modulo = Modulo - Divider * Poly_2;
@@ -343,9 +349,9 @@ void testForInt() {
             for(int k = 0; k <= 4; k++) {
                 for(int l = 0; l <= 4; l++) {
                     number_1 = create_number(i, j, k, l);
-                    
+
                     for(int a = 0; a <= 4; a++){
-                        for(int b = 0; b <= 4; b++) { 
+                        for(int b = 0; b <= 4; b++) {
                             for(int c = 0; c <= 4; c++) {
                                 for(int d = 0; d <= 4; d++) {
                                     number_2 = create_number(a, b, c, d);
@@ -353,7 +359,7 @@ void testForInt() {
                                     assert(gcd_search(number_1, number_2) == real_gcd);
                                 }
                             }
-                        }  
+                        }
                     }
 
                 }
@@ -362,38 +368,40 @@ void testForInt() {
     }
 }
 
-Polynom create_Polynom(vector<double> polynom_roots) {
+Polynom create_Polynom(const vector<RationalNumber>& polynom_roots) {
     Polynom Poly(1);
     for(int i = 0; i < polynom_roots.size(); i++) {
-        vector<double> factor;
-        factor.push_back(1);
+        vector<RationalNumber> factor;
+        factor.push_back(RationalNumber(1));
         factor.push_back(-polynom_roots[i]);
         Poly = Poly * Polynom(factor);
     }
     return Poly;
 }
 
-vector<double> intersection(vector<double> first, vector<double> second) {
-    vector<double> intersection;
-    vector<double> :: iterator it_1;
-    vector<double> :: iterator it_2;
-    for(it_1 = first.begin(); it_1 != first.end(); ++it_1) {
-        it_2 = second.begin();
-        while(it_2 != second.end() && (*it_1) != (*it_2)) {
+vector<RationalNumber> intersection(const vector<RationalNumber>& first, const vector<RationalNumber>& second) {
+    vector<RationalNumber> intersection;
+    vector<RationalNumber> _first = first;
+    vector<RationalNumber> _second = second;
+    vector<RationalNumber> :: iterator it_1;
+    vector<RationalNumber> :: iterator it_2;
+    for(it_1 = _first.begin(); it_1 != _first.end(); ++it_1) {
+        it_2 = _second.begin();
+        while(it_2 != _second.end() && (*it_1) != (*it_2)) {
             ++it_2;
         }
-        if(it_2 != second.end()) {
+        if(it_2 != _second.end()) {
             intersection.push_back(*it_2);
-            second.erase(it_2);
+            _second.erase(it_2);
         }
     }
     return intersection;
 }
 
 void testForPolynom() {
-    vector<double> first_polynom_roots;
-    vector<double> second_polynom_roots;
-    vector<double> gcd_polynom_roots;
+    vector<RationalNumber> first_polynom_roots;
+    vector<RationalNumber> second_polynom_roots;
+    vector<RationalNumber> gcd_polynom_roots;
     Polynom first_Poly;
     Polynom second_Poly;
     Polynom real_gcd_Poly;
@@ -402,45 +410,45 @@ void testForPolynom() {
     int second_polynom_degree;
     int random_number;
     for(int i = 0; i < 500; i++) {
-        first_polynom_degree = rand() % 10; 
-        second_polynom_degree = rand() % 10; 
+        first_polynom_degree = abs(rand()) % 9 + 1;
+        second_polynom_degree = abs(rand()) % 9 + 1;
         for(int j = 0; j <= first_polynom_degree; j++) {
             random_number = (rand() % 20) - 10;
-	    first_polynom_roots.push_back(random_number);           
+	        first_polynom_roots.push_back(RationalNumber(random_number));
         }
         first_Poly = create_Polynom(first_polynom_roots);
         for(int j = 0; j <= second_polynom_degree; j++) {
             random_number = (rand() % 20) - 10;
-	    second_polynom_roots.push_back(random_number);           
+	        second_polynom_roots.push_back(RationalNumber(random_number));
         }
+
         second_Poly = create_Polynom(second_polynom_roots);
         gcd_polynom_roots = intersection(first_polynom_roots, second_polynom_roots);
         real_gcd_Poly = create_Polynom(gcd_polynom_roots);
-        
         gcd_Poly = gcd_search<Polynom>(first_Poly, second_Poly);
         gcd_Poly = gcd_Poly * (1/gcd_Poly[0]);
-        cout << i << '\n';
-	assert(real_gcd_Poly == gcd_Poly);
+	    assert(real_gcd_Poly == gcd_Poly);
+            cout << i << endl;
     }
 }
 
 int main() {
-    // firstly we use simple tests:    
+    // firstly we use simple tests:
     int a = 14;
     int b = 21;
     cout << gcd_search(a, b) << endl;
     cout << gcd_search(a, 0) << endl;
-    vector<double> _A;
-    vector<double> _B;
-    vector<double> _C;
-    vector<double> _O;
-    _A.push_back(1);
-    _A.push_back(1);
-    _B.push_back(1);
-    _B.push_back(-1);
-    _C.push_back(1);
-    _C.push_back(0);
-    _C.push_back(-1);
+    vector<RationalNumber> _A;
+    vector<RationalNumber> _B;
+    vector<RationalNumber> _C;
+    vector<RationalNumber> _O;
+    _A.push_back(RationalNumber(1));
+    _A.push_back(RationalNumber(1));
+    _B.push_back(RationalNumber(1));
+    _B.push_back(RationalNumber(-1));
+    _C.push_back(RationalNumber(1));
+    _C.push_back(RationalNumber(0));
+    _C.push_back(RationalNumber(-1));
     Polynom A(_A);
     Polynom B(_B);
     Polynom C(_C);
@@ -450,9 +458,9 @@ int main() {
     gcd_search<Polynom>(A, C).print();
     gcd_search<Polynom>(O, A).print();
     gcd_search<Polynom>(B, A).print();
-    
+
     // then we use our special testers:
-    testForInt();
+    //testForInt();
     testForPolynom();
     return 0;
 }
